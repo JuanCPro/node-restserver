@@ -1,44 +1,29 @@
 require('./config/config')
 
 const express = require('express')
-const app = express()
+const mongoose = require('mongoose');
 var bodyParser = require('body-parser')
+const app = express()
+
+
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
-
-// parse application/json
+    // parse application/json
 app.use(bodyParser.json())
 
-app.get('/usuario', function(req, res) {
-    res.json('Get usuarios')
-})
+app.use(require('./routes/usuario'))
 
-app.post('/usuario', function(req, res) {
-        let body = req.body;
-        if (body.nombre === undefined) {
-            res.status(400).json({
-                ok: false,
-                mensaje: 'El nombre es necesario'
-            })
-        } else {
-            res.json({
-                persona: body
-            })
-        }
-    })
-    //Enviando info
-app.put('/usuario/:id', function(req, res) {
-    let id = req.params.id;
+mongoose.connect(process.env.URLDB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+}, (err, res) => {
+    if (err) { throw err }
 
-    res.json({
-        id
-    })
-})
-
-app.delete('/usuario', function(req, res) {
-    res.json('delete usuarios')
-})
+    console.log("Base de datos ONLAIN")
+});
 
 app.listen(process.env.PORT, () => {
     console.log('Escuchando el puerto: ', process.env.PORT)
