@@ -3,11 +3,16 @@ const Usuario = require('../models/usuario')
 var bcrypt = require('bcryptjs');
 const _ = require('underscore');
 const usuario = require('../models/usuario');
+//Usando middlewares para verificación
+const { verificarToken, verificarAdmin_Role } = require('../middleware/autenticacion')
+
 
 const app = express()
 
+//Los Middlewares se colocan como segundo argumento
 
-app.get('/usuario', function(req, res) {
+app.get('/usuario', verificarToken, (req, res) => {
+
     let desde = req.query.desde || 0
     desde = Number(desde);
 
@@ -38,7 +43,9 @@ app.get('/usuario', function(req, res) {
 
 })
 
-app.post('/usuario', function(req, res) {
+//Crear
+//Para colocar varios middlewares se ponen entre corchetes
+app.post('/usuario', [verificarToken, verificarAdmin_Role], function(req, res) {
     let body = req.body;
 
     let usuario = new Usuario({
@@ -67,7 +74,8 @@ app.post('/usuario', function(req, res) {
 
 })
 
-app.put('/usuario/:id', function(req, res) {
+//Actualizar
+app.put('/usuario/:id', [verificarToken, verificarAdmin_Role], function(req, res) {
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
 
@@ -88,33 +96,10 @@ app.put('/usuario/:id', function(req, res) {
     })
 })
 
-app.delete('/usuario/:id', function(req, res) {
-    /*let id = req.params.id;
-    Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {
-        if (err) {
-            return res.status(400).json({
-                ok: false,
-                err
-            })
-        };
-
-        if (!usuarioBorrado) {
-            return res.status(400).json({
-                ok: false,
-                err: {
-                    message: 'Usuario no encontrado'
-                }
-            })
-        }
-
-
-        res.json({
-            ok: true,
-            usuario: usuarioBorrado
-        });
-
-    })*/
-
+//Borrar
+app.delete('/usuario/:id', [verificarToken, verificarAdmin_Role], function(req, res) {
+    //Realmente no deberían borrar usuarios, unicamente cambiar su estado a falso o incactivo
+    //esto para mantener concordancia en los datos
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
     body.estado = false;

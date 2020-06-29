@@ -3,16 +3,22 @@ require('./config/config')
 const express = require('express')
 const mongoose = require('mongoose');
 var bodyParser = require('body-parser')
+
+//Usando express
 const app = express()
 
 
 
-// parse application/x-www-form-urlencoded
+// Usando BodyParser
 app.use(bodyParser.urlencoded({ extended: false }))
     // parse application/json
 app.use(bodyParser.json())
 
-app.use(require('./routes/usuario'))
+
+//Configuración global de rutas
+app.use(require('./routes/index'))
+
+
 
 mongoose.connect(process.env.URLDB, {
     useNewUrlParser: true,
